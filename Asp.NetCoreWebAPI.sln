@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asp.NetCoreWebAPI", "Asp.NetCoreWebAPI\Asp.NetCoreWebAPI.csproj", "{411FC251-9886-4C44-972D-11E0D246AB6F}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "reactconsumeweatherforcast", "ReactConsumeWeatherForcast\reactconsumeweatherforcast.esproj", "{35C1ECE9-9440-4100-9692-0789B6992308}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{411FC251-9886-4C44-972D-11E0D246AB6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{411FC251-9886-4C44-972D-11E0D246AB6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{411FC251-9886-4C44-972D-11E0D246AB6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{411FC251-9886-4C44-972D-11E0D246AB6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35C1ECE9-9440-4100-9692-0789B6992308}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35C1ECE9-9440-4100-9692-0789B6992308}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35C1ECE9-9440-4100-9692-0789B6992308}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{35C1ECE9-9440-4100-9692-0789B6992308}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35C1ECE9-9440-4100-9692-0789B6992308}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35C1ECE9-9440-4100-9692-0789B6992308}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3F88BF15-57C4-4185-8407-C54C3C3753B4}
+	EndGlobalSection
+EndGlobal
