@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
 //import axios from 'axios';
-import api from './api';
+import moment from 'moment';
 
 /*function RabbitMQConsumer() {
   const [message, setMessage] = useState<string | null>(null);
@@ -27,19 +26,26 @@ import api from './api';
   );
 }*/
 interface RabbitMQConsumerProps {
-  data: string | null;
+  //data: string | null;
+  data: any[];
   showRabbitMQConsumer: boolean;
   onHide :  () => void;
 }
 
 const RabbitMQConsumer: React.FC<RabbitMQConsumerProps> = ({ data, showRabbitMQConsumer, onHide  }) => {
-  const [hide, setHide] = useState(showRabbitMQConsumer);
 
   return (
     <div style={{ display: showRabbitMQConsumer  ? 'block' : 'none' }}>
-      <h2>RabbitMQ Message</h2>
-      {data !== null ? (
-        <p>{data}</p>
+      <h3>RabbitMQ Message</h3>
+      {data.length>0 ? (
+        //<p>{data}</p>
+        <ul>
+        {data.map((item, index) => (
+          
+             <li key={index}> {moment(item.date).format('DD.MM.YYYY')}: {item.Summary},  Temperature: {item.TemperatureC}°C</li>
+          
+        ))}
+        </ul>
       ) : (
         <p>No message available</p>
       )}

@@ -5,17 +5,16 @@ import './App.css'
 //import axios from 'axios'
 import RabbitMQConsumer from './RabbitMQConsumer'
 import api from './api';
-import React from 'react'
+import moment from 'moment';
 
 function App() {
   const [count, setCount] = useState(0)
-  const [data, setData] = useState([])
+  const [data, setData] = useState<any[]>([])
   const hasRun = useRef(false)
   const [showRabbitMQConsumer, setShowRabbitMQConsumer] = useState(false)
-  const MemoizedRabbitMQConsumer = React.memo(RabbitMQConsumer);
-  let debounceTimeout = null;
+ 
   const [apiInProgress, setApiInProgress] = useState(false);
-  const [apiData, setApiData] = useState(null);
+  const [apiData, setApiData] = useState<any[]>([]);
   const [showMessageDiv, setMessageDiv] = useState("none");
 
   useEffect(() => {
@@ -32,7 +31,10 @@ function App() {
   }, []);
   const onHide = () => {
     setShowRabbitMQConsumer(false);
+    //clear the api data
+    setApiData([]);
   };
+
   const handleButtonClick = () => {
     setCount((count) => count + 1);
     if (!apiInProgress) {
@@ -41,12 +43,13 @@ function App() {
       setMessageDiv ("block");
     }
   };
+
   useEffect(() => {
     if (showRabbitMQConsumer) {
-      // Make the API call here
-        api.get('/weatherforecast/ConsumeMessage')
+         api.get('/weatherforecast/ConsumeMessage')
         .then(response=> {
-          setApiData(response.data);
+          const newData = [...(apiData ?? []), ...(response.data ?? [])];
+          setApiData(newData);
           setApiInProgress(false);
         })
         .catch(error => {
@@ -64,16 +67,7 @@ function App() {
 
   return (
     <>
-     <div>
-      <h1>Weather Forecast</h1>
-      {data.length==0 ?(<div> Loading...</div>):"" } 
-      <ul>
-        {data.map(item => (
-          <li key={item.id}>{item.summary}</li>
-        ))}
-      </ul>
-    </div>
-    
+          <h1>Vite + React</h1>   
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -82,24 +76,30 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
+
+    <h2>Weather Forecast (dummy)</h2>
+      <div>
+      {data.length==0 ?(<div> Loading...</div>):"" } 
+      <ul>
+        {data.map(item => (
+          <li key={item.id}>{moment(item.date).format('DD.MM.YYYY')}: {item.summary}, Temperature:{item.temperatureC}°C</li>
+        ))}
+      </ul>
+    </div>
       <div className="card">
-        <button onClick={handleButtonClick}>
-          count is {count}
+        <button className="btnCountShowPreviousRabbitMQConsumedMessage" 
+        onClick={handleButtonClick}
+        disabled={showRabbitMQConsumer}>
+          show previous {count}
           
         </button>
-        <div style={{ display: showMessageDiv }}> 
+        <div className="RabbitMQConsumedMessage" style={{ display: showMessageDiv }}> 
         {
           true && <RabbitMQConsumer data={apiData} showRabbitMQConsumer={showRabbitMQConsumer} onHide={onHide}/>
         }
         </div>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      
     </>
   )
 }

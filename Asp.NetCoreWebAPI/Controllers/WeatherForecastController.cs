@@ -35,16 +35,18 @@ namespace Asp.NetCoreWebAPI.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public IActionResult Get()
         {
-            _rabbitMQService.SendMessage("Controller was hit");
+            
 
             var weatherForecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
+                Id = index,
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                 TemperatureC = Random.Shared.Next(-20, 55),
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
 
+            _rabbitMQService.SendMessage(weatherForecasts);
             //Response.Headers.Append("Access-Control-Allow-Origin", "*");
 
             return Ok(weatherForecasts);

@@ -3,6 +3,7 @@ using RabbitMQ.Client;
 using System;
 using System.Data.Common;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Channels;
 
 namespace Asp.NetCoreWebAPI
@@ -26,15 +27,15 @@ namespace Asp.NetCoreWebAPI
             _channel = _connection.CreateModel();
         }
 
-        public void SendMessage(string message)
+        public void SendMessage(WeatherForecast[]? message)
         {
-            _channel.QueueDeclare(queue: "my_queue", durable: false, exclusive: false, autoDelete: false, arguments: null);
-            var body = System.Text.Encoding.UTF8.GetBytes(message);
+            _channel.QueueDeclare(queue: "my_queue", durable: true, exclusive: false, autoDelete: false, arguments: null);
+            var body = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
             _channel.BasicPublish(exchange: "", routingKey: "my_queue", basicProperties: null, body: body);
         }
         public string ConsumeMessage()
         {
-            _channel.QueueDeclare(queue: "my_queue", durable: false, exclusive: false, autoDelete: false, arguments: null);
+            _channel.QueueDeclare(queue: "my_queue", durable: true, exclusive: false, autoDelete: false, arguments: null);
 
             var result = _channel.BasicGet(queue: "my_queue", autoAck: true);
             if (result != null)
