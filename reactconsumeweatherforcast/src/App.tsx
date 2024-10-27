@@ -4,8 +4,8 @@ import viteLogo from '/vite.svg'
 import './App.css'
 //import axios from 'axios'
 import RabbitMQConsumer from './RabbitMQConsumer'
+import WeatherForecast from './WeatherForecast';
 import api from './api';
-import moment from 'moment';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -32,7 +32,7 @@ function App() {
 
   const onHide = () => {
     setShowRabbitMQConsumer(false);
-    //clear the api data
+    //clear consumed RabbitMq data
     setApiRabbitMQData([]);
   };
 
@@ -78,22 +78,17 @@ function App() {
         </a>
       </div>
 
-    <h2>Weather Forecast (dummy)</h2>
       <div>
-      {data.length==0 ?(<div> Loading...</div>):"" } 
-      <ul>
-        {data.map(item => (
-          <li key={item.id}>{moment(item.date).format('DD.MM.YYYY')}: {item.summary}, Temperature:{item.temperatureC}°C</li>
-        ))}
-      </ul>
-    </div>
+        <WeatherForecast data={data} />
+      </div>
+
       <div className="card">
-        <button className="btnCountShowPreviousRabbitMQConsumedMessage" 
-        onClick={handleButtonClick}
-        disabled={showRabbitMQConsumer}>
-          show previous {count}
-          
+        <button className="btnCountShowRabbitMQConsumedMessage" 
+            onClick={handleButtonClick}
+            disabled={showRabbitMQConsumer}>
+              show previous {count}
         </button>
+
         <div className="RabbitMQConsumedMessage" style={{ display: showMessageDiv }}> 
         {
           true && <RabbitMQConsumer data={apiRabbitMQData} showRabbitMQConsumer={showRabbitMQConsumer} onHide={onHide}/>
