@@ -2,69 +2,76 @@ import { useEffect, useRef, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-//import axios from 'axios'
+
 import RabbitMQConsumer from './RabbitMQConsumer'
 import WeatherForecast from './WeatherForecast';
 import api from './api';
 
-function App() {
-  const [count, setCount] = useState(0)
-  const [data, setData] = useState<any[]>([])
+interface AppProps {
+
+}
+
+interface AppState {
+  count: number;
+  data: any[];
+  showRabbitMQConsumer: boolean;
+  apiInProgress: boolean;
+  apiRabbitMQData: any[];
+  showMessageDiv: boolean;
+}
+
+function App({}: AppProps) {
+  const [state, setState] = useState<AppState>({
+    count: 0,
+    data: [],
+    showRabbitMQConsumer: false,
+    apiInProgress: false,
+    apiRabbitMQData: [],
+    showMessageDiv: false,
+  });
+  
   const hasRun = useRef(false)
-  const [showRabbitMQConsumer, setShowRabbitMQConsumer] = useState(false)
- 
-  const [apiInProgress, setApiInProgress] = useState(false);
-  const [apiRabbitMQData, setApiRabbitMQData] = useState<any[]>([]);
-  const [showMessageDiv, setMessageDiv] = useState("none");
+  const fetchWeatherData = async () => {
+    try {
+      const response = await api.get('/weatherforecast/', { withCredentials: false });
+      setState(prevState => ({ ...prevState, data: response.data }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const consumeRabbitMQMessages = async () => {
+    try {
+      const response = await api.get('/weatherforecast/ConsumeMessage');
+      setState(prevState => ({ ...prevState, apiRabbitMQData: [...prevState.apiRabbitMQData, ...response.data] }));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setState(prevState => ({ ...prevState, apiInProgress: false }));
+    }
+  };
 
   useEffect(() => {
     if (!hasRun.current) {
-      api.get('/weatherforecast/', { withCredentials: false })
-      .then(response => {
-        setData(response.data);
-      })
-      .catch(error => {
-        console.error(error);
-      });
-      hasRun.current = true;
-    }
+    fetchWeatherData();
+    hasRun.current = true;
+  }
   }, []);
 
-  const onHide = () => {
-    setShowRabbitMQConsumer(false);
-    //clear consumed RabbitMq data
-    setApiRabbitMQData([]);
-  };
+  useEffect(() => {
+    if (state.showRabbitMQConsumer) {
+      setState(prevState => ({ ...prevState, apiInProgress: true }));
+      consumeRabbitMQMessages();
+    }
+  }, [state.showRabbitMQConsumer]);
 
   const handleButtonClick = () => {
-    setCount((count) => count + 1);
-    if (!apiInProgress) {
-      setApiInProgress(true);
-      setShowRabbitMQConsumer(true);
-      setMessageDiv ("block");
-    }
+    setState(prevState => ({ ...prevState, count: prevState.count + 1, showRabbitMQConsumer: true, showMessageDiv: true }));
   };
 
-  useEffect(() => {
-    if (showRabbitMQConsumer) {
-         api.get('/weatherforecast/ConsumeMessage')
-        .then(response=> {
-          const newMQData = [...(apiRabbitMQData ?? []), ...(response.data ?? [])];
-          setApiRabbitMQData(newMQData);
-          setApiInProgress(false);
-        })
-        .catch(error => {
-          console.error(error);
-          setApiInProgress(false);
-        })
-        .finally(() => {
-          setApiInProgress(false);
-        });
-        return () => {
-          setApiInProgress(false);
-        };
-    }
-  }, [showRabbitMQConsumer]);
+  const onHide = () => {
+    setState(prevState => ({ ...prevState, showRabbitMQConsumer: false, apiRabbitMQData: [] }));
+  };
 
   return (
     <>
@@ -79,22 +86,20 @@ function App() {
       </div>
 
       <div>
-        <WeatherForecast data={data} />
+        <WeatherForecast data={state.data} />
       </div>
 
-      <div className="card">
-        <button className="btnCountShowRabbitMQConsumedMessage" 
-            onClick={handleButtonClick}
-            disabled={showRabbitMQConsumer}>
-              show previous {count}
-        </button>
+  <div className={`card ${state.showMessageDiv ? 'show-message' : ''}`}>
+    <button className="btnCountShowRabbitMQConsumedMessage" onClick={handleButtonClick} disabled={state.showRabbitMQConsumer}>
+      show previous {state.count}
+    </button>
 
-        <div className="RabbitMQConsumedMessage" style={{ display: showMessageDiv }}> 
-        {
-          true && <RabbitMQConsumer data={apiRabbitMQData} showRabbitMQConsumer={showRabbitMQConsumer} onHide={onHide}/>
-        }
-        </div>
-      </div>
+    <div className="RabbitMQConsumedMessage">
+      {state.showRabbitMQConsumer && (
+        <RabbitMQConsumer data={state.apiRabbitMQData} showRabbitMQConsumer={state.showRabbitMQConsumer} onHide={onHide} />
+      )}
+    </div>
+  </div>
       
     </>
   )
