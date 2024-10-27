@@ -14,7 +14,7 @@ function App() {
   const [showRabbitMQConsumer, setShowRabbitMQConsumer] = useState(false)
  
   const [apiInProgress, setApiInProgress] = useState(false);
-  const [apiData, setApiData] = useState<any[]>([]);
+  const [apiRabbitMQData, setApiRabbitMQData] = useState<any[]>([]);
   const [showMessageDiv, setMessageDiv] = useState("none");
 
   useEffect(() => {
@@ -29,10 +29,11 @@ function App() {
       hasRun.current = true;
     }
   }, []);
+
   const onHide = () => {
     setShowRabbitMQConsumer(false);
     //clear the api data
-    setApiData([]);
+    setApiRabbitMQData([]);
   };
 
   const handleButtonClick = () => {
@@ -48,8 +49,8 @@ function App() {
     if (showRabbitMQConsumer) {
          api.get('/weatherforecast/ConsumeMessage')
         .then(response=> {
-          const newData = [...(apiData ?? []), ...(response.data ?? [])];
-          setApiData(newData);
+          const newMQData = [...(apiRabbitMQData ?? []), ...(response.data ?? [])];
+          setApiRabbitMQData(newMQData);
           setApiInProgress(false);
         })
         .catch(error => {
@@ -95,7 +96,7 @@ function App() {
         </button>
         <div className="RabbitMQConsumedMessage" style={{ display: showMessageDiv }}> 
         {
-          true && <RabbitMQConsumer data={apiData} showRabbitMQConsumer={showRabbitMQConsumer} onHide={onHide}/>
+          true && <RabbitMQConsumer data={apiRabbitMQData} showRabbitMQConsumer={showRabbitMQConsumer} onHide={onHide}/>
         }
         </div>
       </div>

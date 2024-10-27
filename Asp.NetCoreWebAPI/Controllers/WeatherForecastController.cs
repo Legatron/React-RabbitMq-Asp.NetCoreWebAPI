@@ -7,11 +7,6 @@ namespace Asp.NetCoreWebAPI.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly RabbitMQService _rabbitMQService;
         public WeatherForecastController(ILogger<WeatherForecastController> logger, RabbitMQService rabbitMQService)
@@ -35,16 +30,19 @@ namespace Asp.NetCoreWebAPI.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public IActionResult Get()
         {
-            
-
-            var weatherForecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Id = index,
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+           
+            var weatherForecasts = Enumerable.Range(1, 5).Select(index => 
+            { 
+                var temperatureC = Random.Shared.Next(-10, 35);// more realistic temperature range
+                return new WeatherForecast
+                {
+                    Id = index,
+                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                    TemperatureC = temperatureC,
+                    Summary = GetSummary(temperatureC) // varied and consistent summaries
+                };
             })
-            .ToArray();
+              .ToArray();
 
             _rabbitMQService.SendMessage(weatherForecasts);
             //Response.Headers.Append("Access-Control-Allow-Origin", "*");
@@ -58,5 +56,15 @@ namespace Asp.NetCoreWebAPI.Controllers
             var message = _rabbitMQService.ConsumeMessage();
             return Ok(message);
         }
+        private static string GetSummary(int temperatureC)
+        {
+            if (temperatureC < 0) return "Freezing";
+            if (temperatureC < 10) return "Chilly";
+            if (temperatureC < 20) return "Cool";
+            if (temperatureC < 25) return "Mild";
+            if (temperatureC < 30) return "Warm";
+            return "Hot";
+        }
     }
+
 }

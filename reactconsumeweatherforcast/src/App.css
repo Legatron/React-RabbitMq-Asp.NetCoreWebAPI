@@ -27,7 +27,7 @@
   }
 }
 
-@keyframes logo-shake {
+@keyframes logo-pulsing {
   from {
     transform: matrix3d(36, 0, 0, 0, 0, 36, 0, 0, 0, 0, 1, 0, 0, 0, 0, 40);
   }
@@ -43,7 +43,7 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(1) .logo {
-    animation: logo-shake infinite 1s linear;
+    animation: logo-pulsing infinite 1s linear;
   }
 }
 
