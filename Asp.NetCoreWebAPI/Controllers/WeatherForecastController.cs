@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Asp.NetCoreWebAPI.Controllers
@@ -15,10 +15,16 @@ namespace Asp.NetCoreWebAPI.Controllers
             _rabbitMQService = rabbitMQService;
         }
 
+
         [HttpGet(Name = "GetWeatherForecast")]
+        [Authorize]
         public IActionResult Get()
         {
-           
+            var token = HttpContext.Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(token) || !token.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
             var weatherForecasts = Enumerable.Range(1, 5).Select(index => 
             { 
                 var temperatureC = Random.Shared.Next(-10, 35);// more realistic temperature range

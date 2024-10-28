@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -6,6 +6,8 @@ import './App.css'
 import RabbitMQConsumer from './RabbitMQConsumer'
 import WeatherForecast from './WeatherForecast';
 import api from './api';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface AppProps {
 
@@ -18,6 +20,7 @@ interface AppState {
   apiInProgress: boolean;
   apiRabbitMQData: any[];
   showMessageDiv: boolean;
+  token: string;
 }
 
 function App({}: AppProps) {
@@ -28,15 +31,34 @@ function App({}: AppProps) {
     apiInProgress: false,
     apiRabbitMQData: [],
     showMessageDiv: false,
+    token: ''
   });
   
   const hasRun = useRef(false)
+
+  /*const fetchToken = async () => {
+    try {
+      const response = await api.post('/gettoken/', {
+        username: 'your_username',
+        password: 'your_password',
+      });
+      const token = response.data;
+      localStorage.setItem('token', token);
+      setState(prevState => ({ ...prevState, token: response.data }));
+      toast.success('Token fetched successfully');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error fetching token');
+    }
+  };
+*/
   const fetchWeatherData = async () => {
     try {
-      const response = await api.get('/weatherforecast/', { withCredentials: false });
+      const response = await api.get('/weatherforecast');
       setState(prevState => ({ ...prevState, data: response.data }));
     } catch (error) {
       console.error(error);
+      toast.error('An error occurred while fetching weather data');
     }
   };
 
@@ -46,17 +68,23 @@ function App({}: AppProps) {
       setState(prevState => ({ ...prevState, apiRabbitMQData: [...prevState.apiRabbitMQData, ...response.data] }));
     } catch (error) {
       console.error(error);
+      toast.error('An error occurred while fetching consume RabbitMQ messages');
     } finally {
       setState(prevState => ({ ...prevState, apiInProgress: false }));
     }
   };
 
+  const init = useCallback(async () => {
+    //await fetchToken();
+    await fetchWeatherData();
+  }, []);
+  
   useEffect(() => {
     if (!hasRun.current) {
-    fetchWeatherData();
-    hasRun.current = true;
-  }
-  }, []);
+      init();
+      hasRun.current = true;
+    }
+  }, [init]);
 
   useEffect(() => {
     if (state.showRabbitMQConsumer) {
@@ -75,6 +103,9 @@ function App({}: AppProps) {
 
   return (
     <>
+    <div>
+      <ToastContainer />
+    </div>
           <h1>Vite + React</h1>   
       <div>
         <a href="https://vite.dev" target="_blank">
