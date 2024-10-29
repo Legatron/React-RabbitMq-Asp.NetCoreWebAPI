@@ -18,11 +18,11 @@ namespace Asp.NetCoreWebAPI.Controllers
         [HttpPost(Name = "GetToken")]
         public IActionResult Get([FromBody] TokenRequest request)
         {
-            if (request.Username == "your_username" && request.Password == "your_password")
+            if (request.Username == "username" && request.Password == "password")
             {
                 var jwtConfig = _configuration.GetSection("Jwt").Get<JwtConfig>();
-            var jwtGen = new JwtTokenGenerator(jwtConfig.IssuerSigningKey);
-            var token = jwtGen.GenerateToken(request.Username);
+                var jwtGen = new JwtTokenGenerator(jwtConfig.IssuerSigningKey);
+                var token = jwtGen.GenerateToken(request.Username);
 
                 return Ok(token);
             }

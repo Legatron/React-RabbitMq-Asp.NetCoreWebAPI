@@ -30,8 +30,8 @@ api.interceptors.response.use((response) => {
     // Token is invalid or expired, get a new token
     try {
       const response = await api.post('/gettoken', {
-        username: 'your_username',
-        password: 'your_password'
+        username: 'username',
+        password: 'password'
       });
       const newToken = response.data;
       localStorage.setItem('token', newToken);

@@ -55,20 +55,35 @@ builder.Services.AddCors(options =>
 /*JWT*/
 var jwtConfig = builder.Configuration.GetSection("Jwt").Get<JwtConfig>();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-.AddJwtBearer(options =>
+if (jwtConfig == null)
 {
-    options.TokenValidationParameters = new TokenValidationParameters
+    throw new InvalidOperationException("JWT configuration is missing");
+}
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtConfig.ValidIssuer,
-        ValidAudience = jwtConfig.ValidAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.IssuerSigningKey))
-    };
-});
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtConfig.ValidIssuer,
+            ValidAudience = jwtConfig.ValidAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.IssuerSigningKey))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = context =>
+            {
+                // Log the token validation result
+                Console.WriteLine($"Token validated: {context.SecurityToken}");
+                return Task.CompletedTask;
+            }
+        };
+    });
 
 var app = builder.Build();
 
@@ -81,7 +96,8 @@ if (app.Environment.IsDevelopment())
 //s ovime puca Cors na klijentu
 //app.UseCors("AllowSpecificOrigins");
 app.UseCors("AllowAnyOrigin");
-app.UseAuthorization();
+app.UseAuthentication(); 
+app.UseAuthorization(); 
 app.UseHttpsRedirection();
 
 app.MapControllers();

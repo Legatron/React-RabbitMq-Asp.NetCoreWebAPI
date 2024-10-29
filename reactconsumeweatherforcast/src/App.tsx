@@ -122,7 +122,7 @@ function App({}: AppProps) {
 
   <div className={`card ${state.showMessageDiv ? 'show-message' : ''}`}>
     <button className="btnCountShowRabbitMQConsumedMessage" onClick={handleButtonClick} disabled={state.showRabbitMQConsumer}>
-      show previous {state.count}
+      Show previous forecast - clicked {state.count}  {state.count === 1 ? 'time' : 'times'}
     </button>
 
     <div className="RabbitMQConsumedMessage">
