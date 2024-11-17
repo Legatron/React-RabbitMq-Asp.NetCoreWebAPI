@@ -8,7 +8,7 @@ interface WeatherForecastProps {
 const WeatherForecast: React.FC<WeatherForecastProps> = ({ data }) => {
   return (
     <div>
-      <h2>Weather Forecast (dummy)</h2>
+      <h2>Weather Forecast 5-Day (dummy)</h2>
       {data.length === 0 ? (
         <div>Loading...</div>
       ) : (
